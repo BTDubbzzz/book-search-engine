@@ -62,14 +62,30 @@ const resolvers = {
 				const updatedUser = await User.findOneAndUpdate(
 					{ _id: context.user._id },
 					{
-						$addToSet: {
-							savedBooks: book,
+						$push: {
+							savedBooks: book._id,
 						},
 					}
 				);
 				console.log('updatedUser :>> ', updatedUser);
 				return book;
 			}
+		},
+		removeBook: async (parent, { bookId }, context) => {
+			if (context.user) {
+				// const book = await Book.findOneAndDelete({
+				// 	bookId: bookId,
+				// });
+				console.log('bookId :>> ', bookId);
+				const user = await User.findOneAndUpdate(
+					{ _id: context.user._id },
+					{ $pull: { savedBooks: bookId } },
+					{ new: true }
+				).populate('savedBooks');
+				console.log('user :>> ', user);
+				return user;
+			}
+			throw new AuthenticationError('You need to be logged in');
 		},
 	},
 };

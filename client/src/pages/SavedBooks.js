@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { redirect, useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import React from 'react';
+import { useMutation, useQuery } from '@apollo/client';
 import {
 	Jumbotron,
 	Container,
@@ -9,33 +8,26 @@ import {
 	Button,
 } from 'react-bootstrap';
 import { QUERY_ME } from '../utils/queries';
-
-import { getMe, deleteBook } from '../utils/API';
-import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
+import { REMOVE_BOOK } from '../utils/mutations';
+// import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
-	const { loading, error, data } = useQuery(QUERY_ME);
+	const { loading, data } = useQuery(QUERY_ME);
 	const userData = data?.me ?? {};
+	const [deleteBook, { err }] = useMutation(REMOVE_BOOK);
 
 	// create function that accepts the book's mongo _id value as param and deletes the book from the database
 	const handleDeleteBook = async (bookId) => {
-		const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-		if (!token) {
-			return false;
-		}
-
 		try {
-			const response = await deleteBook(bookId, token);
+			console.log('bookId :>> ', bookId);
 
-			if (!response.ok) {
-				throw new Error('something went wrong!');
-			}
+			const { data } = await deleteBook({
+				variables: {
+					bookId: bookId,
+				},
+			});
 
-			const updatedUser = await response.json();
-			// upon success, remove book's id from localStorage
-			removeBookId(bookId);
+			console.log('data :>> ', data);
 		} catch (err) {
 			console.error(err);
 		}
@@ -62,6 +54,7 @@ const SavedBooks = () => {
 						: 'You have no saved books!'}
 				</h2>
 				<CardColumns>
+					{console.log('userData.savedBooks :>> ', userData.savedBooks)}
 					{userData.savedBooks.map((book) => {
 						return (
 							<Card key={book.bookId} border="dark">
@@ -78,7 +71,7 @@ const SavedBooks = () => {
 									<Card.Text>{book.description}</Card.Text>
 									<Button
 										className="btn-block btn-danger"
-										onClick={() => handleDeleteBook(book.bookId)}
+										onClick={() => handleDeleteBook(book._id)}
 									>
 										Delete this Book!
 									</Button>
