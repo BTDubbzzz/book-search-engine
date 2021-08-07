@@ -19,6 +19,7 @@ const LoginForm = () => {
 
 	const handleFormSubmit = async (event) => {
 		event.preventDefault();
+		console.log('clicked login');
 
 		// check if form has everything (as per react-bootstrap docs)
 		const form = event.currentTarget;
@@ -28,10 +29,11 @@ const LoginForm = () => {
 		}
 
 		try {
+			console.log('trying block');
 			const { data } = await login({
 				variables: { ...userFormData },
 			});
-
+			console.log('login created');
 			Auth.login(data.login.token);
 		} catch (err) {
 			console.error(err);

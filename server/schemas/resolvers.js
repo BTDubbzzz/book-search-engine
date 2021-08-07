@@ -1,6 +1,7 @@
-const { User } = require('../models');
+const { User, Book } = require('../models');
 const { AuthenticationError } = require('apollo-server-express');
 const { signToken } = require('../utils/auth');
+const bookSchema = require('../models/Book');
 
 const resolvers = {
 	Query: {
@@ -20,6 +21,7 @@ const resolvers = {
 			return { token, user };
 		},
 		login: async (parent, { email, password }) => {
+			console.log('logging in clicked');
 			const user = await User.findOne({ email });
 
 			if (!user) {
@@ -34,6 +36,34 @@ const resolvers = {
 
 			const token = signToken(user);
 			return { token, user };
+		},
+		saveBook: async (
+			parent,
+			{ title, authors, description, bookId, image, link },
+			context
+		) => {
+			// console.log('context :>> ', context);
+			if (context.user) {
+				const book = await Book.create({
+					title,
+					authors,
+					description,
+					bookId,
+					image,
+					link,
+				});
+				console.log('book :>> ', book);
+				const updatedUser = await User.findOneAndUpdate(
+					{ _id: context.user._id },
+					{
+						$addToSet: {
+							savedBooks: book,
+						},
+					}
+				);
+				console.log('updatedUser :>> ', updatedUser);
+				return book;
+			}
 		},
 	},
 };
