@@ -17,29 +17,13 @@ import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
 	const [userData, setUserData] = useState({});
-
-	// use this to determine if `useEffect()` hook needs to run again
-	const { loading, data } = useQuery(QUERY_ME);
-	const token = Auth.loggedIn() ? Auth.getToken() : null;
-	const decodedToken = decode(token);
-	console.log('decodedToken :>> ', decodedToken);
-
 	const userDataLength = Object.keys(userData).length;
-
+	const { loading, error, data } = useQuery(QUERY_ME);
 	useEffect(() => {
-		const getUserData = async () => {
-			try {
-				if (!token) {
-					return false;
-				}
-				setUserData(decodedToken);
-				console.log('userData :>> ', userData);
-			} catch (err) {
-				console.error(err);
-			}
-
-			getUserData();
-		};
+		if (!loading) {
+			const me = { ...data.me };
+			setUserData(me);
+		}
 	}, [userDataLength]);
 
 	// create function that accepts the book's mongo _id value as param and deletes the book from the database
