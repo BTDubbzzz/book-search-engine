@@ -9,6 +9,7 @@ import {
 	Button,
 } from 'react-bootstrap';
 import { QUERY_ME } from '../utils/queries';
+import decode from 'jwt-decode';
 
 import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
@@ -19,27 +20,26 @@ const SavedBooks = () => {
 
 	// use this to determine if `useEffect()` hook needs to run again
 	const { loading, data } = useQuery(QUERY_ME);
-	console.log('data :>> ', data);
+	const token = Auth.loggedIn() ? Auth.getToken() : null;
+	const decodedToken = decode(token);
+	console.log('decodedToken :>> ', decodedToken);
 
 	const userDataLength = Object.keys(userData).length;
 
 	useEffect(() => {
-		if (data) {
-			const getUserData = async () => {
-				try {
-					const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-					if (!token) {
-						return false;
-					}
-					setUserData(data);
-					console.log('userData :>> ', userData);
-				} catch (err) {
-					console.error(err);
+		const getUserData = async () => {
+			try {
+				if (!token) {
+					return false;
 				}
-			};
+				setUserData(decodedToken);
+				console.log('userData :>> ', userData);
+			} catch (err) {
+				console.error(err);
+			}
+
 			getUserData();
-		}
+		};
 	}, [userDataLength]);
 
 	// create function that accepts the book's mongo _id value as param and deletes the book from the database
