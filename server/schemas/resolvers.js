@@ -6,10 +6,10 @@ const bookSchema = require('../models/Book');
 const resolvers = {
 	Query: {
 		users: async () => {
-			return User.find({});
+			return User.find().populate('savedBooks');
 		},
 		user: async (parent, { userID }) => {
-			return User.findOne({ _id: userID });
+			return User.findOne({ _id: userID }).populate('savedBooks');
 		},
 	},
 
@@ -21,7 +21,6 @@ const resolvers = {
 			return { token, user };
 		},
 		login: async (parent, { email, password }) => {
-			console.log('logging in clicked');
 			const user = await User.findOne({ email });
 
 			if (!user) {
