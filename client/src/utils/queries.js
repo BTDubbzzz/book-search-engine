@@ -5,3 +5,21 @@ export const QUERY_SAVED_BOOKS = gql`
 		savedBooks(title: $title)
 	}
 `;
+
+export const QUERY_ME = gql`
+	query me {
+		me {
+			_id
+			username
+			email
+			savedBooks {
+				_id
+				authors
+				title
+				description
+				link
+				image
+			}
+		}
+	}
+`;

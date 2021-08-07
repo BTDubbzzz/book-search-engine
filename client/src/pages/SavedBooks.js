@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { redirect, useParams } from 'react-router-dom';
+import { useQuery } from '@apollo/client';
 import {
 	Jumbotron,
 	Container,
@@ -6,6 +8,7 @@ import {
 	Card,
 	Button,
 } from 'react-bootstrap';
+import { QUERY_ME } from '../utils/queries';
 
 import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
@@ -16,6 +19,7 @@ const SavedBooks = () => {
 
 	// use this to determine if `useEffect()` hook needs to run again
 	const userDataLength = Object.keys(userData).length;
+	const { loading, data } = useQuery(QUERY_ME);
 
 	useEffect(() => {
 		const getUserData = async () => {
@@ -28,12 +32,9 @@ const SavedBooks = () => {
 
 				const response = await getMe(token);
 
-				if (!response.ok) {
-					throw new Error('something went wrong!');
-				}
-
 				const user = await response.json();
-				setUserData(user);
+				setUserData(data);
+				console.log('userData :>> ', userData);
 			} catch (err) {
 				console.error(err);
 			}

@@ -11,6 +11,13 @@ const resolvers = {
 		user: async (parent, { userID }) => {
 			return User.findOne({ _id: userID }).populate('savedBooks');
 		},
+		me: async (parent, args, context) => {
+			// console.log('context :>> ', context);
+			if (context.user) {
+				return User.findOne({ _id: context.user._id }).populate('savedBooks');
+			}
+			throw new AuthenticationError('You need to be logged in');
+		},
 	},
 
 	Mutation: {
@@ -41,7 +48,6 @@ const resolvers = {
 			{ title, authors, description, bookId, image, link },
 			context
 		) => {
-			// console.log('context :>> ', context);
 			if (context.user) {
 				const book = await Book.create({
 					title,
