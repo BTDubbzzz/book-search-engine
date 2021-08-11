@@ -26,6 +26,7 @@ const SavedBooks = () => {
 					bookId: bookId,
 				},
 			});
+			window.location.reload();
 
 			console.log('data :>> ', data);
 		} catch (err) {
